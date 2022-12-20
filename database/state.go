@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"time"
 )
 
@@ -18,20 +17,30 @@ type State struct {
 	dbFile          *os.File
 }
 
-func NewStateFromDisk() (*State, error) {
+func NewStateFromDisk(dataDir string) (*State, error) {
 
-	// to get working dir
-	cwd, err := os.Getwd()
+	err := initDataDirIfNotExists(dataDir)
 	if err != nil {
 		return nil, err
 	}
 
-	// get genesis file path
-	genesisFilePath := filepath.Join(cwd, "database", "genesis.json")
-	genesis, err := LoadGenesis(genesisFilePath)
+	genesis, err := LoadGenesis(getGenesisJsonFilePath(dataDir))
 	if err != nil {
 		return nil, err
 	}
+
+	// // to get working dir
+	// cwd, err := os.Getwd()
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// // get genesis file path
+	// genesisFilePath := filepath.Join(cwd, "database", "genesis.json")
+	// genesis, err := LoadGenesis(genesisFilePath)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	balances := make(map[Account]uint)
 
@@ -39,9 +48,7 @@ func NewStateFromDisk() (*State, error) {
 		balances[account] = balance
 	}
 
-	// get transactions file path
-	blockFilePath := filepath.Join(cwd, "database", "block.db")
-	f, err := os.OpenFile(blockFilePath, os.O_APPEND|os.O_RDWR, 0600)
+	f, err := os.OpenFile(getBlocksDbFilePath(dataDir), os.O_APPEND|os.O_RDWR, 0600)
 	if err != nil {
 		return nil, err
 	}

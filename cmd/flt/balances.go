@@ -3,15 +3,19 @@ package main
 import (
 	"flutechain/database"
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 var balancesListCommand = &cobra.Command{
 	Use:   "list",
 	Short: "list all wallet balances.",
 	Run: func(cmd *cobra.Command, args []string) {
-		state, err := database.NewStateFromDisk()
+
+		dataDir, _ := cmd.Flags().GetString(flagDataDir)
+		state, err := database.NewStateFromDisk(dataDir)
+
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
@@ -34,7 +38,9 @@ func balancesCmd() *cobra.Command {
 		Use:   "balances",
 		Short: "interact with balances",
 		Run: func(cmd *cobra.Command, args []string) {
-			state, err := database.NewStateFromDisk()
+
+			dataDir, _ := cmd.Flags().GetString(flagDataDir)
+			state, err := database.NewStateFromDisk(dataDir)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
@@ -52,6 +58,9 @@ func balancesCmd() *cobra.Command {
 			fmt.Println(fmt.Sprintf("%s: %d", account, state.Balances[database.Account(account)]))
 		},
 	}
+
+	balanceCmd.Flags().String(accountFlag, "", "account to get balance")
+	balanceCmd.MarkFlagRequired(accountFlag)
 
 	addDefaultRequiredFlags(balanceCmd)
 

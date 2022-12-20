@@ -3,8 +3,9 @@ package main
 import (
 	"flutechain/database"
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 func txCmd() *cobra.Command {
@@ -29,6 +30,9 @@ func txAddCmd() *cobra.Command {
 		Use:   "add",
 		Short: "Adds new Tx to database",
 		Run: func(cmd *cobra.Command, args []string) {
+
+			dataDir, _ := cmd.Flags().GetString(flagDataDir)
+
 			from, _ := cmd.Flags().GetString(fromFlag)
 			to, _ := cmd.Flags().GetString(toFlag)
 			value, _ := cmd.Flags().GetUint(valueFlag)
@@ -38,7 +42,7 @@ func txAddCmd() *cobra.Command {
 
 			tx := database.NewTx(fromAcc, toAcc, value, "")
 
-			state, err := database.NewStateFromDisk()
+			state, err := database.NewStateFromDisk(dataDir)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
@@ -59,6 +63,8 @@ func txAddCmd() *cobra.Command {
 			fmt.Println("TX successfully added to ledger")
 		},
 	}
+
+	addDefaultRequiredFlags(cmd)
 
 	cmd.Flags().String(fromFlag, "", "Account to send tokens from")
 	cmd.Flags().String(toFlag, "", "Account to send tokens to")

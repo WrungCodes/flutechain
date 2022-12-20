@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 const accountFlag = "account"
@@ -11,6 +12,7 @@ const accountFlag = "account"
 const fromFlag = "from"
 const toFlag = "to"
 const valueFlag = "value"
+const flagDataDir = "datadir"
 
 func main() {
 	var cmd = &cobra.Command{
@@ -36,6 +38,6 @@ func incorrectUsageErr() error {
 }
 
 func addDefaultRequiredFlags(cmd *cobra.Command) {
-	cmd.Flags().String(accountFlag, "", "account to get balance")
-	cmd.MarkFlagRequired(accountFlag)
+	cmd.Flags().String(flagDataDir, "", "Absolute path to your node's data dir where the DB will be/is stored")
+	cmd.MarkFlagRequired(flagDataDir)
 }
